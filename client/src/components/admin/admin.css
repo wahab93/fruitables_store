@@ -1,0 +1,29 @@
+#admin {
+    /* background-color: rgb(240, 239, 239); */
+    height: 100vh;
+}
+
+#admin .list-group-item {
+    border: none;
+    padding: 14px;
+    background: none;
+}
+
+#admin .list-group {
+    height: calc(100vh - 105px);
+    background-color: rgb(252, 252, 252);
+    font-size: 17px;
+}
+
+#admin .list-group-item a {
+    font-weight: 500;
+    color: #333;
+}
+
+#admin .list-group-item a.active {
+    color: var(--bs-primary);
+}
+
+#admin .list-group-item a i {
+    padding-right: 10px;
+}
