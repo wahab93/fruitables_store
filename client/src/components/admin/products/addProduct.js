@@ -55,7 +55,6 @@ export const AddProduct = () => {
 
     // add product
     const postData = async (e) => {
-        debugger
         e.preventDefault();
         if (!productCat || !productName || !productPrice || !productTitle || !productDescription || (!productImage && isNew)) {
             alert('Please fill all fields');
@@ -115,8 +114,9 @@ export const AddProduct = () => {
         }
     };
 
-// edit handler
+    // edit handler
     const handleEdit = (product) => {
+        console.log('click on handleEdit in product:', product)
         setProductCat(product.productCategory);
         setProductName(product.productName);
         setProductTitle(product.productTitle);
@@ -192,13 +192,13 @@ export const AddProduct = () => {
     };
 
     return (
-        <div className='container'>
+        <>
             <div className='row my-4'>
                 <div className='col-md-10'>
                     <h2>Add Product</h2>
                 </div>
                 <div className='col-md-2 text-end'>
-                    <button type="button" className="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addProductModal" id="addProductModalButton">
+                    <button type="button" className="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#addProductModal" id="addProductModalButton">
                         Add Product
                     </button>
                 </div>
@@ -248,10 +248,10 @@ export const AddProduct = () => {
                     </table>
                 </div>
             </div>
-            
+
             {/* Add product Modal */}
             <Productmodel
-                isNew
+                isNew={!currentProductId}
                 postData={postData}
                 setProductCat={setProductCat}
                 productCat={productCat}
@@ -263,6 +263,7 @@ export const AddProduct = () => {
                 setProductDescription={setProductDescription}
                 productPrice={productPrice}
                 setProductPrice={setProductPrice}
+                productImage={productImage}
                 setProductImage={setProductImage}
                 loading={loading}
             />
@@ -285,6 +286,6 @@ export const AddProduct = () => {
                 setNarration={setNarration}
                 loading={loading}
             />
-        </div>
+        </>
     );
 };

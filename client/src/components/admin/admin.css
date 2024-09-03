@@ -9,11 +9,16 @@
     background: none;
 }
 
-#admin .list-group {
+#admin .sidebar-content{
+    height: 100vh;
+    background-color: rgb(252, 252, 252);
+}
+
+/* #admin .list-group {
     height: calc(100vh - 105px);
     background-color: rgb(252, 252, 252);
     font-size: 17px;
-}
+} */
 
 #admin .list-group-item a {
     font-weight: 500;
@@ -26,4 +31,19 @@
 
 #admin .list-group-item a i {
     padding-right: 10px;
+}
+
+#admin .dropdown .dropdown-menu a:hover {
+    background: rgb(247, 247, 247);
+    color: unset;
+}
+
+#admin .blink {
+    animation: blinker 1.5s linear infinite;
+}
+
+@keyframes blinker {
+    50% {
+        opacity: 0;
+    }
 }

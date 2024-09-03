@@ -193,7 +193,7 @@ export const Register = () => {
                         'Register'
                       }
                     </button>
-                    <p className='m-0'>Do'nt have an Account <Link to='/login'>Login</Link></p>
+                    <p className='m-0'>Already have an Account | <Link to='/login'>Login</Link></p>
                   </div>
                 </div>
               </form>

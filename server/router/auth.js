@@ -291,8 +291,7 @@ router.post('/addEditOrder', async (req, res) => {
             order.orderStatus = orderStatus || order.orderStatus;
 
             await order.save();
-            // Emit a Socket.IO event for the new order
-            req.io.emit('newOrder', newOrder);
+            console.log('Updated order in addEditOrder API', order)
             return res.status(200).json(order);
         } else {
             // Generate order code
@@ -316,6 +315,7 @@ router.post('/addEditOrder', async (req, res) => {
 
             // Save the order to the database
             await newOrder.save();
+            console.log('new order in addeditOrder APi', newOrder)
             // Emit a Socket.IO event for the new order
             req.io.emit('newOrder', newOrder);
             return res.status(200).json(newOrder);

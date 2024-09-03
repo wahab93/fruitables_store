@@ -2,7 +2,7 @@ import React from 'react';
 
 export const StatisticsCard = ({ title, value, percentage, iconClass, isIncrease }) => {
   return (
-    <div className="col-md-4">
+    <div className="col-md-3 mb-2">
       <div className="card">
         <div className="card-body">
           <div className="row">
@@ -15,7 +15,7 @@ export const StatisticsCard = ({ title, value, percentage, iconClass, isIncrease
               </div>
             </div>
           </div>
-          <h1 className="mt-1 mb-3">{value}</h1>
+          <h3 className="mt-1 mb-3">{value}</h3>
           <div className="mb-0">
             <span className={isIncrease ? 'text-success' : 'text-danger'}>
               <i className={isIncrease ? 'mdi mdi-arrow-top-right' : 'mdi mdi-arrow-bottom-right'}></i> {percentage}% 

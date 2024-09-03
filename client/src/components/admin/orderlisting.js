@@ -1,10 +1,19 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { orderServices } from '../../services/orderServices';
 import Swal from 'sweetalert2';
+import { useLocation } from 'react-router-dom';
 
 export const Orderlisting = () => {
     const [orders, setOrders] = useState([])
     const [filterCode, setFilterCode] = useState('');
+    // console.log('orders in orderlisting', orders[0]._id)
+
+    const location = useLocation();
+
+    // Extract the order ID from the query parameter
+    const queryParams = new URLSearchParams(location.search);
+    const highlightedOrderId = queryParams.get('orderId');
+    console.log('highlightedOrderId' , highlightedOrderId)
 
     useEffect(() => {
         const getProducts = async () => {
@@ -79,61 +88,59 @@ export const Orderlisting = () => {
 
 
     return (
-        <div className='container'>
-            <div className='row my-4'>
-                <div className='col-md-12'>
-                    <h2>Order Listing</h2>
-                    {orders.length > 0 ? (
-                        <>
-                            <input
-                                type='text'
-                                placeholder='Enter Order Code'
-                                className='form-control'
-                                value={filterCode}
-                                onChange={(e) => setFilterCode(e.target.value)}
-                            />
-                            <table className='table table-striped table-hover'>
-                                <thead>
-                                    <tr>
-                                        <th>Customer Name</th>
-                                        <th>Customer Phone</th>
-                                        <th>Order Code</th>
-                                        <th>Order Total</th>
-                                        <th>Action</th>
+        <div className='row my-4'>
+            <div className='col-md-12'>
+                <h2>Order Listing</h2>
+                {orders.length > 0 ? (
+                    <>
+                        <input
+                            type='text'
+                            placeholder='Enter Order Code'
+                            className='form-control'
+                            value={filterCode}
+                            onChange={(e) => setFilterCode(e.target.value)}
+                        />
+                        <table className='table table-striped table-hover'>
+                            <thead>
+                                <tr>
+                                    <th>Customer Name</th>
+                                    <th>Customer Phone</th>
+                                    <th>Order Code</th>
+                                    <th>Order Total</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {filteredOrders.map((order) => (
+                                    <tr key={order._id} className={order.orderCode === highlightedOrderId ? 'table-warning' : ''}>
+                                        <td>{order.billingAddress.name}</td>
+                                        <td>{order.customerId.phone}</td>
+                                        <td>{order.orderCode}</td>
+                                        <td>{order.totalAmount}</td>
+                                        <td>
+                                            {order.orderStatus !== 'completed' ? (
+                                                <select
+                                                    className='form-select'
+                                                    value={order.orderStatus}
+                                                    onChange={(e) => updateOrderStatus(order._id, e.target.value)}
+                                                >
+                                                    <option value="pending">Pending</option>
+                                                    <option value="processing">Processing</option>
+                                                    <option value="dispatching">Dispatching</option>
+                                                    <option value="completed">Completed</option>
+                                                </select>
+                                            ) : (
+                                                'Completed'
+                                            )}
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredOrders.map((order) => (
-                                        <tr key={order.id}>
-                                            <td>{order.billingAddress.name}</td>
-                                            <td>{order.customerId.phone}</td>
-                                            <td>{order.orderCode}</td>
-                                            <td>{order.totalAmount}</td>
-                                            <td>
-                                                {order.orderStatus !== 'completed' ? (
-                                                    <select
-                                                        className='form-select'
-                                                        value={order.orderStatus}
-                                                        onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                                                    >
-                                                        <option value="pending">Pending</option>
-                                                        <option value="processing">Processing</option>
-                                                        <option value="dispatching">Dispatching</option>
-                                                        <option value="completed">Completed</option>
-                                                    </select>
-                                                ) : (
-                                                    'Completed'
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </>
-                    ) : (
-                        <h1 className='text-center'>No orders Yet</h1>
-                    )}
-                </div>
+                                ))}
+                            </tbody>
+                        </table>
+                    </>
+                ) : (
+                    <h1 className='text-center'>No orders Yet</h1>
+                )}
             </div>
         </div>
     )

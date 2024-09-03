@@ -104,7 +104,7 @@ export const Login = () => {
                     'Login'
                   }
                 </button>
-                <p className='m-0'>Do'nt have an Account <Link to='/register'>Register</Link></p>
+                <p className='m-0'>Do'nt have an Account | <Link to='/register'>Register</Link></p>
               </div>
             </form>
           </div>

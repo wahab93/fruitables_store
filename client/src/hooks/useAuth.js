@@ -3,14 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 
 export const useAuth = () => {
-  const isAdmin = useSelector((state) => state.userHandler.isAdmin);
+  const stateisAdmin = useSelector((state) => state.userHandler.isAdmin);
   const navigate = useNavigate();
+  console.log('state in useAuth', stateisAdmin)
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (!stateisAdmin) {
       navigate('/login');
     }
-  }, [isAdmin, navigate]);
-
-  return isAdmin;
+  }, [stateisAdmin, navigate]);
+  
+  return stateisAdmin;
 };

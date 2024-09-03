@@ -129,7 +129,7 @@ console.log('products:', productData)
                                             productData.map((product, i) => {
                                                 const { _id, productName, productTitle, productPrice, productImage, stocks } = product
                                                 const lastStock = stocks[stocks.length - 1]?.ClosingBalance || 0;
-                                                console.log('lastStock of each product:', lastStock)
+                                                console.log(`lastStock of each product ${productName}:`, lastStock)
                                                 return (
                                                     <div className={showsidebar ? "col-md-6 col-xl-4" : "col-md-6 col-xl-3"} key={i}>
                                                         <div className="rounded position-relative fruite-item">

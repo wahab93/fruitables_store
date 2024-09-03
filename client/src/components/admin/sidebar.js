@@ -6,8 +6,8 @@ export const Sidebar = () => {
   const logOut = useLogout();
 
   return (
-    <div className="sidebar-content js-simplebar my-4">
-      <Link to="/admin/dashboard"><h2 className='ps-3 mb-3 text-dark'>Fruitables</h2></Link>
+    <div className="sidebar-content js-simplebar">
+      <Link to="/admin/dashboard"><h1 className='ps-3 mb-3 text-dark'>Fruitables</h1></Link>
       <ul className="list-group">
         <li className="list-group-item">
           <NavLink to="/admin/dashboard"

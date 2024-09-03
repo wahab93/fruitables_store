@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 export const Productmodel = ({
     isNew,
@@ -13,9 +13,21 @@ export const Productmodel = ({
     setProductDescription,
     productPrice,
     setProductPrice,
+    productImage,
     setProductImage,
     loading
 }) => {
+    const [imagePreview, setImagePreview] = useState('');
+    console.log('imagePreview :', imagePreview)
+
+    useEffect(() => {
+        // If in edit mode and productImage URL is provided, update image preview
+        if (!isNew && productImage) {
+            setImagePreview(productImage);
+        }
+    }, [productImage, isNew]);
+
+
     return (
         <div className="modal fade" id="addProductModal" tabIndex="-1" aria-labelledby="addProductModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-xl">
@@ -27,6 +39,7 @@ export const Productmodel = ({
                     <div className="modal-body">
                         <form onSubmit={postData}>
                             <div className="row g-3">
+                                {/* Product Category Filed */}
                                 <div className="col-md-6">
                                     <label htmlFor="productCategory" className="form-label">Product Category</label>
                                     <select className="form-select"
@@ -45,6 +58,7 @@ export const Productmodel = ({
                                         <option value="women's clothing">women's clothing</option>
                                     </select>
                                 </div>
+                                {/* Product Name Filed */}
                                 <div className="col-md-6">
                                     <label htmlFor="productName" className="form-label">Product Name</label>
                                     <input type="text" className='form-control' placeholder='Product Name' id='productName'
@@ -52,6 +66,7 @@ export const Productmodel = ({
                                         value={productName}
                                     />
                                 </div>
+                                {/* Product Title Filed */}
                                 <div className="col-md-6">
                                     <label htmlFor="productTitle" className="form-label">Product Title</label>
                                     <input type="text"
@@ -61,6 +76,7 @@ export const Productmodel = ({
                                         value={productTitle}
                                     />
                                 </div>
+                                {/* Product Description Filed */}
                                 <div className="col-md-6">
                                     <label htmlFor="productDescription" className="form-label">Product Description</label>
                                     <input type="text"
@@ -70,6 +86,7 @@ export const Productmodel = ({
                                         value={productDescription}
                                     />
                                 </div>
+                                {/* Product Price Filed */}
                                 <div className="col-md-6">
                                     <label htmlFor="productPrice" className='form-label'>Product Price</label>
                                     <input type="number"
@@ -79,17 +96,32 @@ export const Productmodel = ({
                                         onChange={(e) => setProductPrice(e.target.value)}
                                     />
                                 </div>
+                                {/* Product Image Filed */}
                                 <div className="col-md-12">
-                                    <label htmlFor="productImag" className='form-label d-block'>Product Image</label>
+                                    <label htmlFor="productImage" className='form-label d-block'>
+                                        {isNew ? 'Product Image' : 'Selected Image'}
+                                    </label>
+                                    {imagePreview && (
+                                        <img
+                                            src={isNew ? imagePreview : process.env.REACT_APP_IMAGE_PATH + imagePreview}
+                                            alt="Product Preview"
+                                            width={100}
+                                            className="d-block img-fluid mb-2"
+                                        />
+                                    )}
                                     <input
                                         type="file"
                                         accept="image/*"
+                                        id="upload_input"
+                                        className='d-none'
                                         onChange={(e) => {
                                             const file = e.target.files[0];
                                             setProductImage(file);
+                                            setImagePreview(URL.createObjectURL(file));
                                         }}
                                         required={isNew}
                                     />
+                                    <a href="#" className="imgholdingdiv border p-2 rounded" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
                                 </div>
                             </div>
                             <div className='row justify-content-end'>
