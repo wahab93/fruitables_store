@@ -15,10 +15,10 @@ export const Productmodel = ({
     setProductPrice,
     productImage,
     setProductImage,
-    loading
+    loading,
+    imagePreview,
+    setImagePreview
 }) => {
-    const [imagePreview, setImagePreview] = useState('');
-    console.log('imagePreview :', imagePreview)
 
     useEffect(() => {
         // If in edit mode and productImage URL is provided, update image preview
@@ -121,7 +121,7 @@ export const Productmodel = ({
                                         }}
                                         required={isNew}
                                     />
-                                    <a href="#" className="imgholdingdiv border p-2 rounded" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
+                                    <a className="imgholdingdiv border p-2 rounded" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
                                 </div>
                             </div>
                             <div className='row justify-content-end'>

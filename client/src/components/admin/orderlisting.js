@@ -2,6 +2,8 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { orderServices } from '../../services/orderServices';
 import Swal from 'sweetalert2';
 import { useLocation } from 'react-router-dom';
+import DataTable from 'react-data-table-component';
+
 
 export const Orderlisting = () => {
     const [orders, setOrders] = useState([])
@@ -13,7 +15,7 @@ export const Orderlisting = () => {
     // Extract the order ID from the query parameter
     const queryParams = new URLSearchParams(location.search);
     const highlightedOrderId = queryParams.get('orderId');
-    console.log('highlightedOrderId' , highlightedOrderId)
+    console.log('highlightedOrderId', highlightedOrderId)
 
     useEffect(() => {
         const getProducts = async () => {
@@ -86,11 +88,50 @@ export const Orderlisting = () => {
         );
     }, [orders, filterCode]);
 
+    const columns = [
+        {
+            name: 'Customer Name',
+            selector: row => row.billingAddress.name,
+        },
+        {
+            name: 'Customer Phone',
+            selector: row => row.customerId.phone,
+        },
+        {
+            name: 'Order Code',
+            selector: row => row.orderCode,
+        },
+        {
+            name: 'Order Total',
+            selector: row => row.totalAmount,
+        },
+        {
+            name: 'Action',
+            cell: row => (
+                row.orderStatus !== 'completed' ? (
+                    <select
+                        className='form-select form-select-sm'
+                        value={row.orderStatus}
+                        onChange={(e) => updateOrderStatus(row._id, e.target.value)}
+                    >
+                        <option value="pending">Pending</option>
+                        <option value="processing">Processing</option>
+                        <option value="dispatching">Dispatching</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                ) : (
+                    'Completed'
+                )
+            ),
+        },
+    ];
+
+
 
     return (
         <div className='row my-4'>
             <div className='col-md-12'>
-                <h2>Order Listing</h2>
+                <h3>Order Listing</h3>
                 {orders.length > 0 ? (
                     <>
                         <input
@@ -100,43 +141,17 @@ export const Orderlisting = () => {
                             value={filterCode}
                             onChange={(e) => setFilterCode(e.target.value)}
                         />
-                        <table className='table table-striped table-hover'>
-                            <thead>
-                                <tr>
-                                    <th>Customer Name</th>
-                                    <th>Customer Phone</th>
-                                    <th>Order Code</th>
-                                    <th>Order Total</th>
-                                    <th>Action</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {filteredOrders.map((order) => (
-                                    <tr key={order._id} className={order.orderCode === highlightedOrderId ? 'table-warning' : ''}>
-                                        <td>{order.billingAddress.name}</td>
-                                        <td>{order.customerId.phone}</td>
-                                        <td>{order.orderCode}</td>
-                                        <td>{order.totalAmount}</td>
-                                        <td>
-                                            {order.orderStatus !== 'completed' ? (
-                                                <select
-                                                    className='form-select'
-                                                    value={order.orderStatus}
-                                                    onChange={(e) => updateOrderStatus(order._id, e.target.value)}
-                                                >
-                                                    <option value="pending">Pending</option>
-                                                    <option value="processing">Processing</option>
-                                                    <option value="dispatching">Dispatching</option>
-                                                    <option value="completed">Completed</option>
-                                                </select>
-                                            ) : (
-                                                'Completed'
-                                            )}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
+                        <DataTable
+                            columns={columns}
+                            data={orders.filter(order =>
+                                order.orderCode.toLowerCase().includes(filterCode.toLowerCase())
+                            )}
+                            pagination
+                            paginationPerPage={6}
+                            highlightOnHover
+                            striped
+                            // defaultSortField="orderCode"
+                        />
                     </>
                 ) : (
                     <h1 className='text-center'>No orders Yet</h1>

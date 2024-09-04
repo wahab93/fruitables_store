@@ -20,7 +20,7 @@ export const Stockmodel = ({
 }) => {
     return (
         <div className="modal fade" id="addStockModal" tabIndex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
-            <div className="modal-dialog modal-lg">
+            <div className="modal-dialog modal-xl">
                 <div className="modal-content">
                     <div className="modal-header">
                         <h5 className="modal-title" id="addStockModalLabel">Manage Stock</h5>

@@ -40,8 +40,8 @@ export const Dashboard = () => {
     <div className='row'>
       <div className='col my-4'>
         <div className='d-flex justify-content-between'>
-          <h2>Orders</h2>
-          <h4>Income: <strong>{totalAmount}</strong></h4>
+          <h3>Orders</h3>
+          <h4>Income: <strong>{totalAmount}</strong>/-</h4>
         </div>
         <div className="row">
           {/* <StatisticsCard title="Income" value={totalAmount} percentage="-3.65" iconClass="fa-money-bill" isIncrease={false} /> */}

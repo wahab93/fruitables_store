@@ -3,6 +3,8 @@ import swal from 'sweetalert';
 import { productServices } from '../../../services/productService';
 import { Productmodel } from './productmodel';
 import { Stockmodel } from './stockmodel';
+import DataTable from 'react-data-table-component';
+
 
 export const AddProduct = () => {
     const [productCat, setProductCat] = useState('');
@@ -22,6 +24,9 @@ export const AddProduct = () => {
     const [Price, setPrice] = useState('');
     const [type, setType] = useState('');
     const [narration, setNarration] = useState('');
+
+    const [imagePreview, setImagePreview] = useState('');
+    const [filterText, setFilterText] = useState('');
 
 
     useEffect(() => {
@@ -60,9 +65,8 @@ export const AddProduct = () => {
             alert('Please fill all fields');
             return;
         }
-
-        setLoading(true)
         try {
+            setLoading(true)
             const formData = new FormData();
             formData.append('productImage', productImage);
             formData.append('productCategory', productCat);
@@ -101,6 +105,7 @@ export const AddProduct = () => {
                 setIsNew(true);
                 setProductImage(null);
                 setCurrentProductId(null);
+                setImagePreview('')
                 setLoading(false)
                 swal("Success", isNew ? "Product Added Successfully!" : "Product Updated Successfully!", "success");
                 document.getElementById('closeModalButton').click();
@@ -123,6 +128,7 @@ export const AddProduct = () => {
         setProductDescription(product.productDescription);
         setProductPrice(product.productPrice);
         setProductImage(product.productImage);
+        setImagePreview(product.imagePreview);
         setIsNew(false);
         setCurrentProductId(product._id);
         document.getElementById('addProductModalButton').click();
@@ -191,63 +197,101 @@ export const AddProduct = () => {
         }
     };
 
+    // Columns configuration for DataTable
+    const columns = [
+        {
+            name: 'Image',
+            selector: row => (
+                <img
+                    src={`${process.env.REACT_APP_IMAGE_PATH}${row.productImage}`}
+                    alt={row.productName}
+                    className='rounded-circle'
+                    width={50}
+                    height={50}
+                    style={{ objectFit: 'cover' }}
+                />
+            ),
+            maxWidth: '100px'
+        },
+        {
+            name: 'Name',
+            selector: row => row.productName,
+            maxWidth: '150px'
+        },
+        {
+            name: 'Category',
+            selector: row => row.productCategory,
+            maxWidth: '150px'
+        },
+        {
+            name: 'Title',
+            selector: row => row.productTitle,
+            maxWidth: '150px'
+        },
+        {
+            name: 'Price',
+            selector: row => row.productPrice,
+            maxWidth: '100px'
+        },
+        {
+            name: 'Stock Value',
+            selector: row => row.stocks[row.stocks.length - 1]?.ClosingBalance || '0',
+            maxWidth: '10px'
+        },
+        {
+            name: 'Action',
+            cell: (row) => (
+                <>
+                    <button className='btn btn-sm btn-secondary' onClick={() => handleEdit(row)}>Edit</button>
+                    <button type="button"
+                        className="btn btn-sm btn-secondary ms-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#addStockModal"
+                        onClick={() => handleStockEdit(row)}
+                    >
+                        Manage Stock
+                    </button>
+                </>
+            ),
+        }
+    ];
+
+    const filteredData = data.filter(product =>
+        product.productName.toLowerCase().includes(filterText.toLowerCase())
+    );
+
+
     return (
         <>
-            <div className='row my-4'>
+            <div className='row mt-4'>
                 <div className='col-md-10'>
-                    <h2>Add Product</h2>
+                    <h3>Add Product</h3>
                 </div>
                 <div className='col-md-2 text-end'>
-                    <button type="button" className="btn btn-primary text-white" data-bs-toggle="modal" data-bs-target="#addProductModal" id="addProductModalButton">
+                    <button type="button" className="btn btn-sm btn-primary text-white" data-bs-toggle="modal" data-bs-target="#addProductModal" id="addProductModalButton">
                         Add Product
                     </button>
                 </div>
             </div>
-            {/* show product listing */}
-            <div className='row'>
-                <div className='col-md-12'>
-                    <table className='table table-striped table-hover'>
-                        <thead>
-                            <tr>
-                                <th scope="col">Product Name</th>
-                                <th scope="col">Product Category</th>
-                                <th scope="col">Product Title</th>
-                                <th scope="col">Product Price</th>
-                                <th scope="col">Stock Value</th>
-                                <th scope="col">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                data.map((product) => {
-                                    const lastStock = product.stocks[product.stocks.length - 1] || { ClosingBalance: '0' };
-                                    return (
-                                        <tr key={product._id}>
-                                            <td>{product.productName}</td>
-                                            <td>{product.productCategory}</td>
-                                            <td>{product.productTitle}</td>
-                                            <td>{product.productPrice}</td>
-                                            <td>{lastStock.ClosingBalance}</td>
-                                            <td>
-                                                <button className='btn btn-secondary' onClick={() => handleEdit(product)}>Edit</button>
-                                                <button type="button"
-                                                    className="btn btn-secondary ms-2"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#addStockModal"
-                                                    id="addStockModalButton"
-                                                    onClick={() => handleStockEdit(product)}
-                                                >
-                                                    Manage Stock
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })
-                            }
-                        </tbody>
-                    </table>
+            <div className='row mb-3 justify-content-end'>
+                <div className='col-md-6'>
+                    <input
+                        type="text"
+                        className="form-control form-control-sm"
+                        placeholder="Search Products by Name"
+                        value={filterText}
+                        onChange={(e) => setFilterText(e.target.value)}
+                    />
                 </div>
             </div>
+            {/* DataTable for displaying products */}
+            <DataTable
+                columns={columns}
+                data={filteredData}
+                pagination
+                highlightOnHover
+                striped
+            />
 
             {/* Add product Modal */}
             <Productmodel
@@ -266,6 +310,8 @@ export const AddProduct = () => {
                 productImage={productImage}
                 setProductImage={setProductImage}
                 loading={loading}
+                imagePreview={imagePreview}
+                setImagePreview={setImagePreview}
             />
 
             {/* add Stock Modal */}
