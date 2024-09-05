@@ -7,7 +7,7 @@ export const Sidebar = () => {
 
   return (
     <div className="sidebar-content js-simplebar">
-      <Link to="/admin/dashboard"><h2 className='ps-3 pt-3 mb-3 text-dark'>Fruitables</h2></Link>
+      <Link to="/admin/dashboard"><h2 className='ps-3 pt-3 mb-3 text-dark'>LOGO</h2></Link>
       <ul className="list-group">
         <li className="list-group-item">
           <NavLink to="/admin/dashboard"

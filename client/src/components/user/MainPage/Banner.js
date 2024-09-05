@@ -18,7 +18,7 @@ export const Banner = () => {
                             <div className="carousel-inner" role="listbox">
                                 <div className="carousel-item active rounded">
                                     <img src="images/hero-img-1.png" className="img-fluid w-100 h-100 bg-secondary rounded" alt="First slide" />
-                                    <a href="#" className="btn px-4 py-2 text-white rounded">Fruites</a>
+                                    <a href="#" className="btn px-4 py-2 text-white rounded">Fruit</a>
                                 </div>
                                 <div className="carousel-item rounded">
                                     <img src="images/hero-img-2.jpg" className="img-fluid w-100 h-100 rounded" alt="Second slide" />

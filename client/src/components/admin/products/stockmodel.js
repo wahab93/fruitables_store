@@ -1,23 +1,88 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
+import swal from 'sweetalert';
 
-export const Stockmodel = ({
-    postStockData, 
-    productId, 
-    setProductId,
-    Quantity,
-    setQuantity,
-    Price,
-    setPrice,
-    venderId,
-    setVenderId,
-    venders,
-    type,
-    setType,
-    narration,
-    setNarration,
-    loading
+export const Stockmodel = ({ setData, productId, setProductId }) => {
+    const [venders, setVenders] = useState([])
+    const [loading, setLoading] = useState(false);
+    const [Quantity, setQuantity] = useState('');
+    const [Price, setPrice] = useState('');
+    const [type, setType] = useState('');
+    const [narration, setNarration] = useState('');
+    const [venderId, setVenderId] = useState('');
 
-}) => {
+    useEffect(() => {
+        const getVenders = async () => {
+            try {
+                const response = await fetch('/venders');
+                const data = await response.json()
+                setVenders(data)
+                console.log('vender in stockmodel API:', data)
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        };
+        getVenders();
+    }, [])
+
+    // add stock data
+    const postStockData = async (e) => {
+        e.preventDefault();
+        if (!productId || !Quantity || !type || !narration || !Price || !venderId) {
+            alert('Please fill all fields');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            const stockData = {
+                productId: productId,
+                venderId: venderId,
+                userId: '',
+                Quantity: Quantity,
+                Price: Price,
+                type: type,
+                narration: narration,
+                createdAt: new Date().toISOString()
+            };
+
+            const response = await fetch('/manageStocks', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(stockData)
+            });
+            console.log('stockdata when inserting intoAPI in stockModalComponent:', stockData)
+
+            if (response.ok) {
+                const newStock = await response.json();
+                console.log('newStock after response in StockModal Component:', newStock)
+                setData(prevData =>
+                    prevData.map(product =>
+                        product._id === newStock.productId
+                            ? { ...product, stocks: [...product.stocks, newStock] }
+                            : product
+                    )
+                );
+                swal("Success", "Stock Added Successfully!", "success");
+                setLoading(false);
+                setProductId('');
+                setVenderId('')
+                setQuantity('')
+                setPrice('')
+                setType('')
+                setNarration('')
+                document.getElementById('closeStockModalButton').click();
+            } else {
+                swal("Error", "Failed to add stock", "error");
+                setLoading(false);
+            }
+        } catch (error) {
+            setLoading(false);
+            console.error(error);
+            swal("Error", "An error occurred while adding stock", "error");
+        }
+    };
     return (
         <div className="modal fade" id="addStockModal" tabIndex="-1" aria-labelledby="addStockModalLabel" aria-hidden="true">
             <div className="modal-dialog modal-xl">
@@ -27,14 +92,13 @@ export const Stockmodel = ({
                         <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div className="modal-body">
-                        <form onSubmit={postStockData}>
+                        <form>
                             <div className="row g-3">
                                 <div className="col-md-6">
                                     <label htmlFor="productId" className="form-label">Product ID</label>
                                     <input type="text"
                                         className='form-control'
                                         placeholder='Product ID'
-                                        id='productId'
                                         name='productId'
                                         value={productId}
                                         onChange={(e) => setProductId(e.target.value)}
@@ -46,8 +110,8 @@ export const Stockmodel = ({
                                         className='form-control'
                                         placeholder='Quantity'
                                         name='Quantity'
-                                        onChange={(e) => setQuantity(e.target.value)}
                                         value={Quantity}
+                                        onChange={(e) => setQuantity(e.target.value)}
                                     />
                                 </div>
                                 <div className="col-md-6">
@@ -55,10 +119,9 @@ export const Stockmodel = ({
                                     <input type="text"
                                         className='form-control'
                                         placeholder='Stock Price'
-                                        id='Price'
                                         name='Price'
-                                        onChange={(e) => setPrice(e.target.value)}
                                         value={Price}
+                                        onChange={(e) => setPrice(e.target.value)}
                                     />
                                 </div>
                                 <div className="col-md-6">
@@ -66,13 +129,16 @@ export const Stockmodel = ({
                                     <select
                                         className='form-select'
                                         name='venderId'
-                                        id='venderId'
                                         onChange={(e) => setVenderId(e.target.value)}
                                         value={venderId}>
                                         <option value="">Select a vendor</option>
-                                        {venders.map((vendor) => (
-                                            <option key={vendor._id} value={vendor._id}>{vendor.name}</option>
-                                        ))}
+                                        {venders && venders.length > 0 ? (
+                                            venders.map((vendor) => (
+                                                <option key={vendor._id} value={vendor._id}>{vendor.name}</option>
+                                            ))
+                                        ) : (
+                                            <option value="">No Vendors Available</option>
+                                        )}
                                     </select>
                                 </div>
                                 <div className="col-md-6">

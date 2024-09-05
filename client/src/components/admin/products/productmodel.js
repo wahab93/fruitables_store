@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
+import swal from 'sweetalert';
 
 export const Productmodel = ({
+    setData,
     isNew,
-    postData,
+    setIsNew,
     setProductCat,
     productCat,
     setProductName,
@@ -15,10 +17,14 @@ export const Productmodel = ({
     setProductPrice,
     productImage,
     setProductImage,
-    loading,
     imagePreview,
-    setImagePreview
+    setImagePreview,
+    currentProductId,
+    setCurrentProductId,
+    productStock
 }) => {
+
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         // If in edit mode and productImage URL is provided, update image preview
@@ -26,6 +32,75 @@ export const Productmodel = ({
             setImagePreview(productImage);
         }
     }, [productImage, isNew]);
+
+    // add product
+    const postData = async (e) => {
+        e.preventDefault();
+        if (!productCat || !productName || !productPrice || !productTitle || !productDescription || !productImage) {
+            alert('Please fill all fields');
+            return;
+        }
+        try {
+            setLoading(true)
+            const formData = new FormData();
+            formData.append('productImage', productImage);
+            formData.append('productCategory', productCat);
+            formData.append('productName', productName);
+            formData.append('productTitle', productTitle);
+            formData.append('productDescription', productDescription);
+            formData.append('productPrice', productPrice);
+            formData.append('isNew', isNew);
+            if (!isNew) {
+                formData.append('_id', currentProductId);
+                formData.append('productStock', productStock);
+            }
+    
+            // Log FormData for debugging
+            for (let pair of formData.entries()) {
+                console.log(`printed formData ${pair[0]}: ${pair[1]}`);
+            }
+
+            const response = await fetch('/addEditProduct', {
+                method: 'POST',
+                body: formData,
+            });
+
+            if (response.ok) {
+                const updatedProduct = await response.json();
+                console.log('updatedProduct', updatedProduct)
+                setData((prevData) => {
+                    console.log('prevData when setting setData', prevData)
+                    if (isNew) {
+                        console.log('isnew true/ false', isNew)
+                        return [updatedProduct, ...prevData];
+                    } else {
+                        return prevData.map((product) =>
+                            product._id === updatedProduct._id ? updatedProduct : product
+                        );
+                    }
+                });
+                // Clear form fields after successful submission
+                setProductCat('');
+                setProductName('');
+                setProductTitle('');
+                setProductDescription('');
+                setProductPrice('');
+                setIsNew(true);
+                setProductImage(null);
+                setCurrentProductId(null);
+                setImagePreview('')
+                setLoading(false)
+                swal("Success", isNew ? "Product Added Successfully!" : "Product Updated Successfully!", "success");
+                document.getElementById('closeModalButton').click();
+            } else {
+                console.log(response.message)
+                swal("Error", "Failed to add or update product", "error");
+                setLoading(false)
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
 
     return (
@@ -119,9 +194,9 @@ export const Productmodel = ({
                                             setProductImage(file);
                                             setImagePreview(URL.createObjectURL(file));
                                         }}
-                                        required={isNew}
+                                    // required={isNew}
                                     />
-                                    <a className="imgholdingdiv border p-2 rounded" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
+                                    <a className="imgholdingdiv border p-2 rounded cursor-pointer" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
                                 </div>
                             </div>
                             <div className='row justify-content-end'>

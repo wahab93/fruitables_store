@@ -108,6 +108,32 @@ router.get('/products/:id', async (req, res) => {
     }
 });
 
+// Delete product and its stock
+router.delete('/deleteProduct/:productId', async (req, res) => {
+    try {
+        const { productId } = req.params;
+        // console.log('productId in delete Request:', productId)
+
+        // Find the product by ID
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
+
+        // Delete all associated stock entries
+        await Stock.deleteMany({ product: productId });
+
+        // Delete the product itself
+        await Product.findByIdAndDelete(productId);
+
+        res.status(200).json({ message: 'Product and associated stock deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting product and stock:', error.message);
+        res.status(500).json({ error: 'Failed to delete product and stock' });
+    }
+});
+
 // Add or Edit New Product
 router.post('/addEditCategory', async (req, res) => {
     try {

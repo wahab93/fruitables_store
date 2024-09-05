@@ -7,6 +7,7 @@ import DataTable from 'react-data-table-component';
 
 
 export const AddProduct = () => {
+    console.log('rerender hua')
     const [productCat, setProductCat] = useState('');
     const [productName, setProductName] = useState('');
     const [productTitle, setProductTitle] = useState('');
@@ -15,16 +16,9 @@ export const AddProduct = () => {
     const [isNew, setIsNew] = useState(true);
     const [productImage, setProductImage] = useState(null);
     const [data, setData] = useState([])
-    const [venders, setVenders] = useState([])
-    const [loading, setLoading] = useState(false);
+    const [productStock, setProductStock] = useState('');
     const [currentProductId, setCurrentProductId] = useState(null);
     const [productId, setProductId] = useState('');
-    const [venderId, setVenderId] = useState('');
-    const [Quantity, setQuantity] = useState('');
-    const [Price, setPrice] = useState('');
-    const [type, setType] = useState('');
-    const [narration, setNarration] = useState('');
-
     const [imagePreview, setImagePreview] = useState('');
     const [filterText, setFilterText] = useState('');
 
@@ -41,83 +35,8 @@ export const AddProduct = () => {
                 console.error('Error fetching products:', error);
             }
         };
-
-        const getVenders = async () => {
-            try {
-                let vendersURL = '/venders'
-                // Getting the data from the API
-                const res = await fetch(vendersURL);
-                const venders = await res.json();
-                setVenders(venders)
-            } catch (error) {
-                console.error('Error fetching products:', error);
-            }
-        };
-        getVenders();
         getProducts();
-
     }, [])
-
-    // add product
-    const postData = async (e) => {
-        e.preventDefault();
-        if (!productCat || !productName || !productPrice || !productTitle || !productDescription || (!productImage && isNew)) {
-            alert('Please fill all fields');
-            return;
-        }
-        try {
-            setLoading(true)
-            const formData = new FormData();
-            formData.append('productImage', productImage);
-            formData.append('productCategory', productCat);
-            formData.append('productName', productName);
-            formData.append('productTitle', productTitle);
-            formData.append('productDescription', productDescription);
-            formData.append('productPrice', productPrice);
-            formData.append('isNew', isNew);
-            if (!isNew) {
-                formData.append('_id', currentProductId);
-            }
-
-            const response = await fetch('/addEditProduct', {
-                method: 'POST',
-                body: formData,
-            });
-
-            if (response.ok) {
-                const updatedProduct = await response.json();
-                console.log('updatedProduct', updatedProduct)
-                setData((prevData) => {
-                    if (isNew) {
-                        return [updatedProduct, ...prevData];
-                    } else {
-                        return prevData.map((product) =>
-                            product._id === updatedProduct._id ? updatedProduct : product
-                        );
-                    }
-                });
-                // Clear form fields after successful submission
-                setProductCat('');
-                setProductName('');
-                setProductTitle('');
-                setProductDescription('');
-                setProductPrice('');
-                setIsNew(true);
-                setProductImage(null);
-                setCurrentProductId(null);
-                setImagePreview('')
-                setLoading(false)
-                swal("Success", isNew ? "Product Added Successfully!" : "Product Updated Successfully!", "success");
-                document.getElementById('closeModalButton').click();
-            } else {
-                console.log(response)
-                swal("Error", "Failed to add or update product", "error");
-                setLoading(false)
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     // edit handler
     const handleEdit = (product) => {
@@ -131,69 +50,40 @@ export const AddProduct = () => {
         setImagePreview(product.imagePreview);
         setIsNew(false);
         setCurrentProductId(product._id);
+        // Fetch stock data and preserve it for display
+        const productStock = product.stocks[product.stocks.length - 1]?.ClosingBalance || '0';
+        console.log('productStocks in edit handler:', productStock)
+        setProductStock(productStock); // Add a new state to manage stock in the form
         document.getElementById('addProductModalButton').click();
     };
 
     // stock edit handler
-    const handleStockEdit = (product) => {
-        setProductId(product._id);
-    }
+    const handleStockEdit = (product) => setProductId(product._id);
 
-    // add stock data
-    const postStockData = async (e) => {
-        e.preventDefault();
-        if (!productId || !Quantity || !type || !narration || !Price) {
-            alert('Please fill all fields');
-            return;
-        }
+    // Delete handler
+    const handleDelete = async (productId) => {
+        console.log('productId in handleDelete:', productId)
+        const confirmDelete = await swal({
+            title: "Are you sure?",
+            text: "Once deleted, you will not be able to recover this product!",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        });
 
-        setLoading(true);
-        try {
-            const stockData = {
-                productId: productId,
-                venderId: venderId,
-                userId: '',
-                Quantity: Quantity,
-                Price: Price,
-                type: type,
-                narration: narration,
-                createdAt: new Date().toISOString()
-            };
-
-            const response = await fetch('/manageStocks', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(stockData)
-            });
-
-            if (response.ok) {
-                const newStock = await response.json();
-                setData(prevData =>
-                    prevData.map(product =>
-                        product._id === newStock.productId
-                            ? { ...product, stocks: [...product.stocks, newStock] }
-                            : product
-                    )
-                );
-                swal("Success", "Stock Added Successfully!", "success");
-                setLoading(false);
-                setProductId(null);
-                setVenderId(null)
-                setQuantity('')
-                setPrice('')
-                setType('')
-                setNarration('')
-                document.getElementById('closeStockModalButton').click();
-            } else {
-                swal("Error", "Failed to add stock", "error");
-                setLoading(false);
+        if (confirmDelete) {
+            try {
+                const response =  await productServices.deleteProduct(`/deleteProduct/${productId}`); // Assuming this is the correct API call
+                setData(data.filter((item) => item._id !== productId));
+                swal(`${response.message}`, {
+                    icon: "success",
+                });
+            } catch (error) {
+                swal("Error deleting product!", {
+                    icon: "error",
+                });
+                console.error('Error deleting product:', error);
             }
-        } catch (error) {
-            setLoading(false);
-            console.error(error);
-            swal("Error", "An error occurred while adding stock", "error");
         }
     };
 
@@ -242,7 +132,13 @@ export const AddProduct = () => {
             name: 'Action',
             cell: (row) => (
                 <>
-                    <button className='btn btn-sm btn-secondary' onClick={() => handleEdit(row)}>Edit</button>
+                    <button className='btn btn-sm' onClick={() => handleEdit(row)}><i className='fa fa-edit'></i></button>
+                    <button
+                        className="btn btn-sm ms-2"
+                        onClick={() => handleDelete(row._id)}
+                    >
+                        <i className='fa fa-trash text-danger'></i>
+                    </button>
                     <button type="button"
                         className="btn btn-sm btn-secondary ms-2"
                         data-bs-toggle="modal"
@@ -256,6 +152,7 @@ export const AddProduct = () => {
         }
     ];
 
+    // search products by their name 
     const filteredData = data.filter(product =>
         product.productName.toLowerCase().includes(filterText.toLowerCase())
     );
@@ -295,8 +192,11 @@ export const AddProduct = () => {
 
             {/* Add product Modal */}
             <Productmodel
+                setData={setData}
                 isNew={!currentProductId}
-                postData={postData}
+                setIsNew={setIsNew}
+                currentProductId={currentProductId}
+                setCurrentProductId={setCurrentProductId}
                 setProductCat={setProductCat}
                 productCat={productCat}
                 productName={productName}
@@ -309,29 +209,13 @@ export const AddProduct = () => {
                 setProductPrice={setProductPrice}
                 productImage={productImage}
                 setProductImage={setProductImage}
-                loading={loading}
                 imagePreview={imagePreview}
                 setImagePreview={setImagePreview}
+                productStock={productStock}
             />
 
             {/* add Stock Modal */}
-            <Stockmodel
-                postStockData={postStockData}
-                productId={productId}
-                setProductId={setProductId}
-                Quantity={Quantity}
-                setQuantity={setQuantity}
-                Price={Price}
-                setPrice={setPrice}
-                venderId={venderId}
-                setVenderId={venderId}
-                venders={venders}
-                type={type}
-                setType={setType}
-                narration={narration}
-                setNarration={setNarration}
-                loading={loading}
-            />
+            <Stockmodel setData={setData} productId={productId} setProductId={setProductId} />
         </>
     );
 };

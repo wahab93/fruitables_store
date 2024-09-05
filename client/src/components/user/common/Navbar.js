@@ -39,7 +39,7 @@ export const Navbar = () => {
                 </div>
                 <div className="container px-0">
                     <nav className="navbar navbar-light bg-white navbar-expand-xl mt-2">
-                        <Link to='/' className="navbar-brand"><h1 className="text-primary display-6">Fruitables</h1></Link>
+                        <Link to='/' className="navbar-brand"><h1 className="text-primary display-6">LOGO</h1></Link>
                         <button className="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse">
                             <span className="fa fa-bars text-primary"></span>
                         </button>

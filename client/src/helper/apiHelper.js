@@ -1,9 +1,10 @@
 export const apiHelper = {
     post,
     get,
-}
+    delete: deleteRequest,  // Add the delete function
+};
 
-// get Requests
+// GET Requests
 async function get(url) {
     const response = await fetch(url, {
         method: 'GET',
@@ -13,9 +14,9 @@ async function get(url) {
     return handleResponse(response);
 }
 
-// Post Request
+// POST Requests
 async function post(url, body) {
-    console.log('url:' , url , 'Body:' , body )
+    console.log('post URL in APIhelper:', url, 'Body in apiHelper:', body);
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -25,14 +26,24 @@ async function post(url, body) {
     return handleResponse(response);
 }
 
+// DELETE Requests
+async function deleteRequest(url) {
+    console.log('Delete URL in apiHelper:', url);
+    const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+    });
 
-// Handling Response
+    return handleResponse(response);
+}
+
+// Handling the Response
 async function handleResponse(response) {
     try {
         const data = await response.json();
-        console.log('data in response in API helper:', data)
-        if (response.status !== 200) {
-            const error = (data);
+        console.log('data in response in API helper:', data);
+        if (!response.ok) {
+            const error = data;
             throw error;
         }
         return data;
