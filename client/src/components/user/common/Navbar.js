@@ -6,6 +6,8 @@ import $ from 'jquery';
 
 export const Navbar = () => {
     const stateUser = useSelector((state) => state.userHandler.user);
+    const stateisAdmin = useSelector((state) => state.userHandler.isAdmin);
+    console.log('stateis admin in navbar component:', stateisAdmin)
     const stateCart = useSelector((state) => state.cartHandler.cart || []);
     // const stateCartfav = useSelector((state) => state.favHandler);
     // console.log(stateCartfav)
@@ -60,6 +62,11 @@ export const Navbar = () => {
                                 {stateUser &&
                                     <NavLink to="/myorders" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
                                         My Orders
+                                    </NavLink>
+                                }
+                                {stateisAdmin &&
+                                    <NavLink to="/admin/dashboard" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>
+                                        Admin Dashboard
                                     </NavLink>
                                 }
                             </div>
