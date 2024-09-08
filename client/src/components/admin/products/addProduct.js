@@ -14,12 +14,12 @@ export const AddProduct = () => {
     const [productDescription, setProductDescription] = useState('');
     const [productPrice, setProductPrice] = useState('');
     const [isNew, setIsNew] = useState(true);
-    const [productImage, setProductImage] = useState(null);
+    const [productImage, setProductImage] = useState('');
+    const [imagePreview, setImagePreview] = useState('');
     const [data, setData] = useState([])
     const [productStock, setProductStock] = useState('');
     const [currentProductId, setCurrentProductId] = useState(null);
     const [productId, setProductId] = useState('');
-    const [imagePreview, setImagePreview] = useState('');
     const [filterText, setFilterText] = useState('');
 
 
@@ -73,7 +73,7 @@ export const AddProduct = () => {
 
         if (confirmDelete) {
             try {
-                const response =  await productServices.deleteProduct(`/deleteProduct/${productId}`); // Assuming this is the correct API call
+                const response = await productServices.deleteProduct(`/deleteProduct/${productId}`); // Assuming this is the correct API call
                 setData(data.filter((item) => item._id !== productId));
                 swal(`${response.message}`, {
                     icon: "success",
