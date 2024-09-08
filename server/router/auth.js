@@ -12,6 +12,7 @@ const Category = require('../model/categorySchema');
 const Stock = require('../model/stockSchema');
 const Vender = require('../model/venderSchema');
 const { getClosingBalance, manageStock, generateOrderCode } = require('../common/functions');
+const fs = require('fs');
 
 
 const storage = multer.diskStorage({
@@ -42,14 +43,37 @@ router.post('/addEditProduct', upload.single('productImage'), async (req, res) =
             if (!product) {
                 return res.status(404).json({ error: 'Product not found' });
             }
+
+            // If a new image is uploaded, remove the old one
+            if (productImage && product.productImage) {
+                const oldImagePath = `../client/public/images/productImages/${product.productImage}`;
+                fs.unlink(oldImagePath, (err) => {
+                    if (err) {
+                        console.error('Error deleting old image:', err);
+                    } else {
+                        console.log('Old image deleted:', product.productImage);
+                    }
+                });
+            }
+
+            // Update product fields
             product.productCategory = productCategory;
             product.productName = productName;
             product.productTitle = productTitle;
             product.productDescription = productDescription;
             product.productPrice = productPrice;
+
+            // Update image if a new one is provided
             if (productImage) {
                 product.productImage = productImage;
             }
+
+            // Save the updated product
+            await product.save();
+
+            // Populate stocks and return the updated product with stocks
+            const updatedProduct = await Product.findById(_id).populate('stocks');
+            res.status(200).json(updatedProduct);
         } else {
             // Adding a new product
             product = new Product({
@@ -60,14 +84,17 @@ router.post('/addEditProduct', upload.single('productImage'), async (req, res) =
                 productPrice,
                 productImage,
             });
+
+            // Save the new product
+            await product.save();
+
+            res.status(201).json(product);
         }
-        await product.save();
-        res.status(201).json(product);
     } catch (error) {
+        console.error('Error adding/editing product:', error);
         res.status(500).json({ error: 'An error occurred' });
     }
 });
-
 
 
 // get All Products
@@ -112,22 +139,39 @@ router.get('/products/:id', async (req, res) => {
 router.delete('/deleteProduct/:productId', async (req, res) => {
     try {
         const { productId } = req.params;
-        // console.log('productId in delete Request:', productId)
+        console.log('productId in delete Request:', productId)
 
         // Find the product by ID
         const product = await Product.findById(productId);
+        console.log('product findbyId from product table:', product)
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
         }
 
-        // Delete all associated stock entries
-        await Stock.deleteMany({ product: productId });
+        // Check if any stock entries exist for this product
+        const stockExists = await Stock.findOne({ productId });
+        console.log('stockExists:', stockExists);
 
+        // Delete all associated stock entries
+        const deleteManyRecord = await Stock.deleteMany({ productId });
+        console.log('deleteManyRecord:', deleteManyRecord);
+
+        // Delete the product image if it exists
+        if (product.productImage) {
+            const imagePath = `../client/public/images/productImages/${product.productImage}`;
+            fs.unlink(imagePath, (err) => {
+                if (err) {
+                    console.error('Error deleting product image:', err);
+                } else {
+                    console.log('Product image deleted:', product.productImage);
+                }
+            });
+        }
         // Delete the product itself
         await Product.findByIdAndDelete(productId);
 
-        res.status(200).json({ message: 'Product and associated stock deleted successfully' });
+        res.status(200).json({ message: 'Product, associated stock, and image deleted successfully' });
     } catch (error) {
         console.error('Error deleting product and stock:', error.message);
         res.status(500).json({ error: 'Failed to delete product and stock' });
