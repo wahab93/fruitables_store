@@ -54,7 +54,7 @@ export const Productmodel = ({
                 formData.append('_id', currentProductId);
                 formData.append('productStock', productStock);
             }
-    
+
             // Log FormData for debugging
             for (let pair of formData.entries()) {
                 console.log(`printed formData ${pair[0]}: ${pair[1]}`);
@@ -171,18 +171,46 @@ export const Productmodel = ({
                                         onChange={(e) => setProductPrice(e.target.value)}
                                     />
                                 </div>
+                                <div className='w-100'></div>
                                 {/* Product Image Filed */}
-                                <div className="col-md-12">
+                                <div className="col-md-6">
                                     <label htmlFor="productImage" className='form-label d-block'>
                                         {isNew ? 'Product Image' : 'Selected Image'}
                                     </label>
+                                    {/* Show image preview if available */}
                                     {imagePreview && (
-                                        <img
-                                            src={isNew ? imagePreview : process.env.REACT_APP_IMAGE_PATH + imagePreview}
-                                            alt="Product Preview"
-                                            width={100}
-                                            className="d-block img-fluid mb-2"
-                                        />
+                                        <div className="position-relative d-inline-block mb-2">
+                                            {isNew ?
+                                                <img
+                                                    src={imagePreview}
+                                                    alt="Product Preview"
+                                                    width={100}
+                                                    className="d-block img-fluid"
+                                                />
+                                                :
+                                                <img
+                                                    src={
+                                                        imagePreview instanceof File
+                                                            ? URL.createObjectURL(imagePreview)  // Create a URL for the uploaded file
+                                                            : `${process.env.REACT_APP_IMAGE_PATH}${productImage}` // If there's an image preview, use it
+                                                    }
+                                                    alt="Product Preview"
+                                                    width={100}
+                                                    className="d-block img-fluid"
+                                                />
+                                            }
+                                            {/* Cross icon to delete the image */}
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger btn-sm position-absolute top-0 start-100 translate-middle"
+                                                onClick={() => {
+                                                    setImagePreview('');
+                                                    setProductImage(null);
+                                                }}
+                                            >
+                                                &times;
+                                            </button>
+                                        </div>
                                     )}
                                     <input
                                         type="file"
@@ -196,7 +224,7 @@ export const Productmodel = ({
                                         }}
                                     // required={isNew}
                                     />
-                                    <a className="imgholdingdiv border p-2 rounded cursor-pointer" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
+                                    <a className="imgholdingdiv border d-block p-2 rounded cursor-pointer" onClick={() => document.getElementById('upload_input').click()}>Upload Image</a>
                                 </div>
                             </div>
                             <div className='row justify-content-end'>
