@@ -52,7 +52,7 @@ export const Register = () => {
     onSubmit: async (values, action) => {
       setLoading(true)
       try {
-        let registerURL = '/register';
+        let registerURL = `${process.env.REACT_APP_BASE_URL}/register`;
         await accountServices.register(registerURL, values)
         setLoading(false)
         swal("Success", "Register Successful!", "success");

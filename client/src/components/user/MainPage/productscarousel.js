@@ -2,17 +2,18 @@ import React, { useState, useEffect } from 'react'
 import OwlCarousel from 'react-owl-carousel';
 import 'owl.carousel/dist/assets/owl.carousel.css';
 import 'owl.carousel/dist/assets/owl.theme.default.css';
-import { productServices } from '../../../services/productService';
+import axios from 'axios';
 
 export const Productscarousel = () => {
     const [data, setData] = useState([])
 
     useEffect(() => {
         const getProducts = async () => {
-            const productsURL = '/products';
+            let productsURL = `${process.env.REACT_APP_BASE_URL}/products`
             try {
-                const response = await productServices.getProducts(productsURL);
-                setData(response.reverse());
+                const response = await axios.get(productsURL);
+                const data = response.data.reverse();
+                setData(data)
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -83,5 +84,5 @@ export const Productscarousel = () => {
                 )}
             </div>
         </div>
-    );    
+    );
 }

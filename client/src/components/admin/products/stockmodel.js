@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import swal from 'sweetalert';
 
@@ -12,9 +13,10 @@ export const Stockmodel = ({ setData, productId, setProductId }) => {
 
     useEffect(() => {
         const getVenders = async () => {
+            let venderURL = `${process.env.REACT_APP_BASE_URL}/venders`
             try {
-                const response = await fetch('/venders');
-                const data = await response.json()
+                const response = await axios.get(venderURL);
+                const data = response.data
                 setVenders(data)
                 console.log('vender in stockmodel API:', data)
             } catch (error) {
@@ -44,8 +46,9 @@ export const Stockmodel = ({ setData, productId, setProductId }) => {
                 narration: narration,
                 createdAt: new Date().toISOString()
             };
-
-            const response = await fetch('/manageStocks', {
+            const manageStocksURL = `${process.env.REACT_APP_BASE_URL}/manageStocks`
+            
+            const response = await fetch(manageStocksURL, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

@@ -59,8 +59,9 @@ export const Productmodel = ({
             for (let pair of formData.entries()) {
                 console.log(`printed formData ${pair[0]}: ${pair[1]}`);
             }
-
-            const response = await fetch('/addEditProduct', {
+            let addEditProductURL = `${process.env.REACT_APP_BASE_URL}/addEditProduct`
+            
+            const response = await fetch(addEditProductURL, {
                 method: 'POST',
                 body: formData,
             });

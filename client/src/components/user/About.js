@@ -4,31 +4,23 @@ import axios from 'axios';
 
 export const About = () => {
   const [userData, setUserData] = useState({});
+  console.log('about component:', userData)
   const navigate = useNavigate();
 
   useEffect(() => {
-    const abortController = new AbortController();
-    const signal = abortController.signal;
 
     const callAboutPage = async () => {
+      let aboutURL = `${process.env.REACT_APP_BASE_URL}/about`
       try {
-        const { data } = await axios.get('/about', { signal });
-        setUserData(data);
+        const response = await axios.get(aboutURL ,{ withCredentials: true });
+        setUserData(response.data);
       } catch (error) {
-        if (axios.isCancel(error)) {
-          console.log('Request was aborted...');
-        } else {
-          console.log(error.message);
-          navigate('/login');
-        }
+        console.log(error.message);
+        navigate('/login');
       }
     };
 
     callAboutPage();
-
-    return () => {
-      abortController.abort();
-    };
   }, [navigate]);
 
   const { _id, name, email, work, phone } = userData;

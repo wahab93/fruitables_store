@@ -22,8 +22,7 @@ export const Login = () => {
     onSubmit: async (values, action) => {
       setLoading(true);
       try {
-        let loginURL = '/login';
-
+        let loginURL = `${process.env.REACT_APP_BASE_URL}/login`;
         // get local storage value
         const pendingProduct = JSON.parse(localStorage.getItem('pendingProduct'));
 

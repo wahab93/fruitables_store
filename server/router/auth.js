@@ -14,20 +14,26 @@ const Vender = require('../model/venderSchema');
 const { getClosingBalance, manageStock, generateOrderCode } = require('../common/functions');
 const fs = require('fs');
 
+const cloudinary = require('cloudinary').v2;
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
-const storage = multer.diskStorage({
-    // if you store images in client si de public folder
-    destination: '../client/public/images/productImages',
-    // if you store images in server side public folder
-    // destination: './public/images/',
-    filename: (req, file, cb) => {
-        cb(null, file.fieldname + '_' + Date.now() + path.extname(file.originalname))
-    }
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-const upload = multer({
-    storage: storage
+
+const storage = new CloudinaryStorage({
+    cloudinary: cloudinary,
+    params: {
+        folder: 'productImages', // Folder in Cloudinary to store images
+        format: async (req, file) => 'jpg', // Supports 'png', 'jpg', etc.
+        public_id: (req, file) => file.fieldname + '_' + Date.now(),
+    },
 });
+
+const upload = multer({ storage: storage });
 
 
 // Add or Edit New Product
@@ -44,14 +50,16 @@ router.post('/addEditProduct', upload.single('productImage'), async (req, res) =
                 return res.status(404).json({ error: 'Product not found' });
             }
 
-            // If a new image is uploaded, remove the old one
+            // If a new image is uploaded, remove the old one from Cloudinary
             if (productImage && product.productImage) {
-                const oldImagePath = `../client/public/images/productImages/${product.productImage}`;
-                fs.unlink(oldImagePath, (err) => {
+                // Extract public_id from the current Cloudinary image URL
+                const public_id = product.productImage.split('/').pop().split('.')[0];
+
+                cloudinary.uploader.destroy(`productImages/${public_id}`, (err, result) => {
                     if (err) {
-                        console.error('Error deleting old image:', err);
+                        console.error('Error deleting old image from Cloudinary:', err);
                     } else {
-                        console.log('Old image deleted:', product.productImage);
+                        console.log('Old image deleted from Cloudinary:', result);
                     }
                 });
             }
@@ -139,11 +147,11 @@ router.get('/products/:id', async (req, res) => {
 router.delete('/deleteProduct/:productId', async (req, res) => {
     try {
         const { productId } = req.params;
-        console.log('productId in delete Request:', productId)
+        console.log('productId in delete Request:', productId);
 
         // Find the product by ID
         const product = await Product.findById(productId);
-        console.log('product findbyId from product table:', product)
+        console.log('product findbyId from product table:', product);
 
         if (!product) {
             return res.status(404).json({ message: 'Product not found' });
@@ -157,17 +165,18 @@ router.delete('/deleteProduct/:productId', async (req, res) => {
         const deleteManyRecord = await Stock.deleteMany({ productId });
         console.log('deleteManyRecord:', deleteManyRecord);
 
-        // Delete the product image if it exists
+        // Delete the product image from Cloudinary if it exists
         if (product.productImage) {
-            const imagePath = `../client/public/images/productImages/${product.productImage}`;
-            fs.unlink(imagePath, (err) => {
+            const public_id = product.productImage.split('/').pop().split('.')[0]; // Extract the public_id from the URL
+            cloudinary.uploader.destroy(`productImages/${public_id}`, (err, result) => {
                 if (err) {
-                    console.error('Error deleting product image:', err);
+                    console.error('Error deleting product image from Cloudinary:', err);
                 } else {
-                    console.log('Product image deleted:', product.productImage);
+                    console.log('Product image deleted from Cloudinary:', result);
                 }
             });
         }
+
         // Delete the product itself
         await Product.findByIdAndDelete(productId);
 

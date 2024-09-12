@@ -28,7 +28,7 @@ export const CartItems = ({ stateCart }) => {
     const hanldeProceedCheckout = async () => {
         setLoading(true);
         let stockIsValid = true;
-        let getRemainingStockURL = '/getRemainingStock/'
+        let getRemainingStockURL = `${process.env.REACT_APP_BASE_URL}/getRemainingStock/`;
         for (const item of stateCart) {
             let productId = item._id;
             try {

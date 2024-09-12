@@ -9,7 +9,7 @@ export const useLogout = () => {
   const dispatch = useDispatch();
 
   const logOut = useCallback(async () => {
-    let logoutURL = '/logout';
+    let logoutURL = `${process.env.REACT_APP_BASE_URL}/logout`;
     try {
       await accountServices.logout(logoutURL);
       dispatch({ type: 'LOGOUT' });

@@ -5,6 +5,7 @@ import { addFav, removeFav } from '../../../redux/action';
 import { Link } from 'react-router-dom';
 import { useAddToCart } from '../../../hooks/cartUtils';
 import { FeatureProducts } from './featureProducts';
+import axios from 'axios';
 
 export const Products = ({ showsidebar = true }) => {
     const [data, setData] = useState([])
@@ -17,11 +18,11 @@ export const Products = ({ showsidebar = true }) => {
 
     useEffect(() => {
         const getProducts = async () => {
-            let productsURL = '/products'
+            let productsURL = `${process.env.REACT_APP_BASE_URL}/products`
             try {
                 // Getting the data from the API
-                const data = await productServices.getProducts(productsURL);
-
+                const response = await axios.get(productsURL);
+                const data = response.data;
                 // Find the unique categories and add 'ALL'
                 const uniqueList = [...new Set(data.map(e => e.productCategory)), 'ALL'];
                 setProductCategories(uniqueList);
@@ -60,7 +61,7 @@ export const Products = ({ showsidebar = true }) => {
             dispatch(addFav(product));
         }
     };
-console.log('products:', productData)
+    console.log('products:', productData)
     return (
         <>
             <div className={`container-fluid fruite py-md-5 ${showsidebar ? 'mt-5' : ''}`}>

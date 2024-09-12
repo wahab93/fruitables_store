@@ -62,7 +62,7 @@ export const Checkout = () => {
     const handleOrder = async (e) => {
         e.preventDefault();
         try {
-            let addEditOrderURL = '/addEditOrder'
+            let addEditOrderURL = `${process.env.REACT_APP_BASE_URL}/addEditOrder`;
             setLoading(true)
             const response = await orderServices.postorder(addEditOrderURL, order);
             const { orderCode } = response;

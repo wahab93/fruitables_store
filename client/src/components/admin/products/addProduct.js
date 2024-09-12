@@ -4,6 +4,7 @@ import { productServices } from '../../../services/productService';
 import { Productmodel } from './productmodel';
 import { Stockmodel } from './stockmodel';
 import DataTable from 'react-data-table-component';
+import axios from 'axios';
 
 
 export const AddProduct = () => {
@@ -26,10 +27,9 @@ export const AddProduct = () => {
     useEffect(() => {
         const getProducts = async () => {
             try {
-                let productsURL = '/products'
-                // Getting the data from the API
-                const res = await productServices.getProducts(productsURL);
-                const data = res.reverse()
+                let productsURL = `${process.env.REACT_APP_BASE_URL}/products`
+                const response = await axios.get(productsURL);
+                const data = response.data.reverse();
                 setData(data)
             } catch (error) {
                 console.error('Error fetching products:', error);
@@ -72,8 +72,9 @@ export const AddProduct = () => {
         });
 
         if (confirmDelete) {
+            let deleteProductURL = `${process.env.REACT_APP_BASE_URL}/deleteProduct/${productId}`
             try {
-                const response = await productServices.deleteProduct(`/deleteProduct/${productId}`); // Assuming this is the correct API call
+                const response = await productServices.deleteProduct(deleteProductURL);
                 setData(data.filter((item) => item._id !== productId));
                 swal(`${response.message}`, {
                     icon: "success",

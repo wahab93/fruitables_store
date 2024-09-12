@@ -3,6 +3,7 @@ import { orderServices } from '../../services/orderServices';
 import Swal from 'sweetalert2';
 import { useLocation } from 'react-router-dom';
 import DataTable from 'react-data-table-component';
+import axios from 'axios';
 
 
 export const Orderlisting = () => {
@@ -15,14 +16,14 @@ export const Orderlisting = () => {
     // Extract the order ID from the query parameter
     const queryParams = new URLSearchParams(location.search);
     const highlightedOrderId = queryParams.get('orderId');
-    console.log('highlightedOrderId', highlightedOrderId)
+    console.log('highlightedOrderId', highlightedOrderId);
 
     useEffect(() => {
         const getProducts = async () => {
-            let getOrdersURL = '/getOrders'
+            let getOrdersURL = `${process.env.REACT_APP_BASE_URL}/getOrders`
             try {
-                const res = await orderServices.getAllOrder(getOrdersURL);
-                setOrders(res.reverse());
+                const response = await axios.get(getOrdersURL);
+                setOrders(response.data.reverse());
             } catch (error) {
                 console.error('Error fetching products:', error);
             }
@@ -51,7 +52,7 @@ export const Orderlisting = () => {
             }
 
             if (shouldUpdate) {
-                let addEditOrderURL = '/addEditOrder';
+                let addEditOrderURL = `${process.env.REACT_APP_BASE_URL}/addEditOrder`;
                 // Fetch the current order details
                 const currentOrder = orders.find(order => order._id === orderId);
 
@@ -80,13 +81,6 @@ export const Orderlisting = () => {
             console.error('Error updating order status:', error);
         }
     };
-
-
-    const filteredOrders = useMemo(() => {
-        return orders.filter((order) =>
-            order.orderCode.toLowerCase().includes(filterCode.toLowerCase())
-        );
-    }, [orders, filterCode]);
 
     const columns = [
         {
@@ -126,6 +120,21 @@ export const Orderlisting = () => {
         },
     ];
 
+    // Define conditional row styles
+    const conditionalRowStyles = [
+        {
+            when: row => {
+                console.log('Row _id:', row.orderCode, 'Highlighted ID:', highlightedOrderId); // Debug row._id
+                return row.orderCode === highlightedOrderId; // Condition to check if the row is highlighted
+            },
+            style: {
+                backgroundColor: '#c8e6c9', // Light green background
+                color: 'black', // Text color
+                fontWeight: 'bold',
+            },
+        },
+    ];
+
 
 
     return (
@@ -150,7 +159,7 @@ export const Orderlisting = () => {
                             paginationPerPage={6}
                             highlightOnHover
                             striped
-                            // defaultSortField="orderCode"
+                            conditionalRowStyles={conditionalRowStyles}
                         />
                     </>
                 ) : (

@@ -11,8 +11,8 @@ export const MyOrders = () => {
     useEffect(() => {
         const getOrders = async () => {
             try {
-                let userId = stateUser.user._id
-                let OrderByIdURL = '/getOrders/'
+                let userId = stateUser.user._id;
+                let OrderByIdURL = `${process.env.REACT_APP_BASE_URL}/getOrders/`;
                 const response = await orderServices.getOrderbyId(OrderByIdURL, userId);
                 setOrders(response)
             } catch (error) {

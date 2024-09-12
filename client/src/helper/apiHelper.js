@@ -8,7 +8,8 @@ export const apiHelper = {
 async function get(url) {
     const response = await fetch(url, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
     });
 
     return handleResponse(response);
@@ -16,11 +17,12 @@ async function get(url) {
 
 // POST Requests
 async function post(url, body) {
-    console.log('post URL in APIhelper:', url, 'Body in apiHelper:', body);
+    console.log('post URL in APIhelper Posty:', url, 'Body in apiHelper Post:', body);
     const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
+        body: JSON.stringify(body),
+        credentials: 'include', // Include credentials (cookies)
     });
 
     return handleResponse(response);
@@ -31,7 +33,8 @@ async function deleteRequest(url) {
     console.log('Delete URL in apiHelper:', url);
     const response = await fetch(url, {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include', // Include credentials (cookies)
     });
 
     return handleResponse(response);

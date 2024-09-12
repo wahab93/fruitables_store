@@ -2,16 +2,17 @@ import React, { useEffect, useMemo, useState } from 'react';
 import './admin.css';
 import { StatisticsCard } from './statisticsCard';
 import { orderServices } from '../../services/orderServices';
+import axios from 'axios';
 
 export const Dashboard = () => {
   const [orders, setOrders] = useState([])
   console.log('orders', orders)
   useEffect(() => {
     const getAllOrders = async () => {
-      let getOrdersURL = '/getOrders'
+      let getOrdersURL = `${process.env.REACT_APP_BASE_URL}/getOrders`
       try {
-        const res = await orderServices.getAllOrder(getOrdersURL);
-        setOrders(res);
+        const response = await axios.get(getOrdersURL);
+        setOrders(response.data);
       } catch (error) {
         console.error('Error fetching products:', error);
       }

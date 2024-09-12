@@ -29,9 +29,8 @@ export const Contact = () => {
   const contactForm = async (e) => {
     e.preventDefault();
     const { name, email, phone, message } = userData;
-    let contactMessageURL = '/contactMessage'
-
     try {
+      let contactMessageURL = `${process.env.REACT_APP_BASE_URL}/contactMessage`;
       const data = await contactmessageService.sendMessage(contactMessageURL, userData);
       if (!data) {
         swal('error!', 'Message Not Sent', 'error');

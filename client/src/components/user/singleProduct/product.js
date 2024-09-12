@@ -29,7 +29,7 @@ export const Product = () => {
 
     useEffect(() => {
         const fetchProductById = async () => {
-            const ProductByIdURL = `/products/${productId}`;
+            const ProductByIdURL = `${process.env.REACT_APP_BASE_URL}/products/${productId}`;
             try {
                 const response = await axios.get(ProductByIdURL);
                 setProduct(response.data);
@@ -39,7 +39,7 @@ export const Product = () => {
         };
 
         const fetchOriginalStock = async () => {
-            const getRemainingStockURL = `/getRemainingStock/${productId}`;
+            const getRemainingStockURL = `${process.env.REACT_APP_BASE_URL}/getRemainingStock/${productId}`
             try {
                 const response = await axios.get(getRemainingStockURL);
                 setOriginalStock(response.data.remainingStock);
