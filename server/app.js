@@ -1,9 +1,9 @@
 const dotenv = require('dotenv');
 const express = require('express');
-const http = require('http'); // Import http to create a server
+const http = require('http');
 const cors = require('cors');
 const cookieParser = require("cookie-parser");
-const socketIO = require('socket.io'); // Import socket.io
+const socketIO = require('socket.io');
 
 const app = express();
 
@@ -16,12 +16,12 @@ const io = socketIO(server);
 app.use('/public', express.static('public'));
 
 app.use(cors({
-    origin: 'http://localhost:3000', // Replace with your frontend origin
-    credentials: true // Allow credentials (cookies) to be sent
+    origin: '*',
+    credentials: true
 }));
 
 app.options('*', cors({
-    origin: 'http://localhost:3000',
+    origin: '*',
     credentials: true
 }));
 
